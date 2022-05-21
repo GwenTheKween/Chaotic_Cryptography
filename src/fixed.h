@@ -84,7 +84,6 @@ public:
         fixed<n> f(*this);
         return f *= other;
     }
-
     bool operator!= (fixed<n> other);
     bool operator!= (double d){
         fixed<n> f(d);
@@ -118,6 +117,9 @@ public:
     /* This method is used to check how many bits are different between
        THIS and OTHER, as a percentage between 0 and 1.  */
     double bit_diff(fixed<n> other);
+
+    /* shift left by n bits, then return the next 8 bits.  */
+    unsigned char get_byte_after(size_t i);
 
     /* Used for printing stuff */
     double to_double();
@@ -230,6 +232,15 @@ template <unsigned int n> double fixed<n>::bit_diff(fixed<n> other)
         count += std::popcount(x);
     }
     return count / (8*n);
+}
+
+template <unsigned int n> unsigned char fixed<n>::get_byte_after(size_t i)
+{
+    int index = n/8;
+    unsigned char c = bytes[index] << (n % 8);
+    if(n % 8 == 0) return c;
+    c += bytes[index + 1] >> (8 - (n % 8));
+    return c;
 }
 
 template <unsigned int n> double fixed<n>::to_double()

@@ -25,6 +25,9 @@ public:
     logistic_map(double d, int ii = 8);
 
     int remove_transient();
+    /* get_random will iterate once over the map and return the
+       first 8 bits after the given 'i'.  */
+    unsigned char get_random();
 
     void iterate(size_t n = 1);
     void print_state();
@@ -34,7 +37,9 @@ private:
 };
 
 logistic_map::logistic_map(double d, int ii):
-    state(d), alpha(0.9996), i(ii) { }
+    state(d), alpha(0.9996), i(ii) {
+    remove_transient();
+}
 
 int logistic_map::remove_transient() {
     unsigned char c[BYTE_COUNT];
@@ -49,6 +54,11 @@ int logistic_map::remove_transient() {
         count++;
     }
     return count;
+}
+
+unsigned char logistic_map::get_random() {
+    iterate();
+    return state.get_byte_after(i);
 }
 
 void logistic_map::iterate(size_t n){

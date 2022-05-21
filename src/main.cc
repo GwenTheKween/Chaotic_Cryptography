@@ -1,13 +1,19 @@
 #include "log_map.h"
+#include <stdlib.h>
+#include <math.h>
 
-void test(double d){
+int main(int argc, char** argv){
+    double d;
+    if(argc > 1){
+        d = atof (argv[1]);
+    }else{
+        d = 0.4;
+    }
+    d = d - floor(d);
     logistic_map m(d);
-    int count = m.remove_transient();
-    std::cout << count << '\n';
-}
-
-int main(){
-    for (double d = 0.01; d < 1; d+=0.01)
-        test(d);
+    for(int i = 0; i < 100000; i++){
+        unsigned char c = m.get_random();
+        std::cout << (int) c << '\n';
+    }
     return 0;
 }
