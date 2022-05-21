@@ -51,19 +51,27 @@ I want to design a simple stream cipher based on the i-logistic map, use a simpl
 
 For option 1 we have:
 
-$$ x_{i+1} = \alpha * x_i * (1-x_i) \\ r_i = 2^i * x_i mod 1 \\ C_i = r_i \oplus P_i $$
+$$ x_{i+1} = \alpha * x_i * (1-x_i) $$
+
+$$ r_i = 2^i * x_i mod 1 $$
+
+$$ C_i = r_i \oplus P_i $$
 
 For the second option we have:
 
-$$ x_{i+1} = \alpha * x_i * (1-x_i) \\ r_i = 2^i * x_i mod 1 \\ C_i = (r_i + P_i) % 256 $$
+$$ x_{i+1} = \alpha * x_i * (1-x_i) $$
+
+$$ r_i = 2^i * x_i mod 1 $$
+
+$$ C_i = (r_i + P_i) \% 256 $$
 
 Where:
 
-* $r_i$ is the random number generated in the i-th iteration;
-* $P_i$ is the i-th plaintext character;
-* $C_i$ is the i-th ciphertext character;
-* $\oplus$ is the XOR operation;
-* $%$ is the mod operation;
+* $ r_i $ is the random number generated in the i-th iteration;
+* $ P_i $ is the i-th plaintext character;
+* $ C_i $ is the i-th ciphertext character;
+* $ \oplus $ is the XOR operation;
+* $ % $ is the mod operation;
 
 For decrypting, everything works the same, with the exception of the second option, where we use modular subtraction instead.
 
@@ -91,6 +99,10 @@ The simple system I created (in fixed.h) is beautiful, but has a fatal flaw: It 
 
 The final keyspace that can be reliably generated based on the given limitations is 32 bytes for internal state and 16 bytes for the $\alpha$ parameter, for a total of 384 bits. Not too shabby, but far from perfect. Bumping the state to 64, however, hits the 512 bits brick wall, so we'll stick to 32 bytes for now.
 
+# Results
+
+There are no results for now, but as I develop and implement things, I'll keep this readme posted
+
 # Future work
 
 After I finish the basic version, there are other ways to use the i-logistic map's ideas.
@@ -103,6 +115,9 @@ After I finish the basic version, there are other ways to use the i-logistic map
 
 # Citations
 [1] https://aip.scitation.org/doi/abs/10.1063/1.4983836
+
 [2] https://arxiv.org/pdf/2111.05101.pdf
+
 [3] https://arxiv.org/pdf/2001.03549.pdf
+
 [4] https://arxiv.org/abs/2111.05101
