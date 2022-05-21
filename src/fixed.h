@@ -55,10 +55,12 @@ void multiply_streams (unsigned char* a, unsigned char* b, unsigned char* res,
     return;
 }
 
-template <unsigned int n>
-class fixed{
+template <unsigned int n> class fixed
+{
 private:
     unsigned char bytes[n];
+    enum {power_of_2 = n && !(n&(n-1))};
+    static_assert(power_of_2, "you must have a byte count that is a power of 2");
 public:
     fixed(double d = 0);
     fixed(unsigned char * c);
@@ -69,12 +71,25 @@ public:
         fixed<n> f(other);
         return f += *this;
     }
+    fixed<n> operator -=(fixed<n> other);
+    fixed<n> operator - (fixed<n> other)
+    {
+        fixed<n> f(*this);
+        return f-= other;
+    }
     fixed<n> operator *= (fixed<n> other);
     fixed<n> operator * (fixed<n> other)
     {
-        fixed<n> f(this);
+        fixed<n> f(*this);
         return f *= other;
     }
+
+    /* This function pulls double duty.  Not only does it generate the
+       two's complement of the number, this is also equivalent of doing
+       1 - x, since all numbers are stored mod 1, and 
+       (1 - x) mod 1 == -x mod 1.  This method is, unfortunately, O(n),
+       but it can not be avoided, as all bytes must be negated.  */
+    fixed<n> negate();
 
     /* Used for printing stuff */
     double to_double();
@@ -82,8 +97,8 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const fixed<s>& f);
 };
 
-template <unsigned int n>
-fixed<n>::fixed(double d){
+template <unsigned int n> fixed<n>::fixed(double d)
+{
     for(size_t i=0; i < n; i++){
         unsigned char c = 0;
         for(int j = 0; j<8; j++){
@@ -98,24 +113,62 @@ fixed<n>::fixed(double d){
     }
 }
 
-template <unsigned int n>
-fixed<n> fixed<n>::operator+=(fixed<n> other) {
+template <unsigned int n> fixed<n>::fixed(unsigned char* c)
+{
+    for(size_t i=0; i<n; i++) bytes[i] = c[i];
+}
+
+template <unsigned int n> fixed<n> fixed<n>::operator+=(fixed<n> other)
+{
     unsigned char full_answer[2*n];
     add_streams(bytes, other.bytes, full_answer, n);
     for (size_t i = 0; i < n; i++) bytes[i] = full_answer[i];
     return *this;
 }
 
-template <unsigned int n>
-fixed<n> fixed<n>::operator*= (fixed<n> other){
+template <unsigned int n> fixed<n> fixed<n>::operator-= (fixed<n> other)
+{
+    fixed<n> f(other.negate());
+    return f + *this;
+}
+
+template <unsigned int n> fixed<n> fixed<n>::operator*= (fixed<n> other)
+{
     unsigned char full_precision[n*2];
     multiply_streams(bytes, other.bytes, full_precision, n);
     for(size_t i=0; i<n; i++) bytes[i] = full_precision[i];
     return *this;
 }
 
-template <unsigned int n>
-double fixed<n>::to_double(){
+template <unsigned int n> fixed<n> fixed<n>::negate()
+{
+    unsigned char byt[n], c=1;
+    for(size_t i=n; i>0; i --) {
+        /* We invert and add 1 to the byte here to turn the byte into its
+           two's complement.  */
+        byt[i-1] = (~bytes[i-1]) + c;
+        /* Then we check if there was an overflow in the current byte.
+          
+           If the first bit was ON in the original byte, there is no way
+           to have an overflow, as we are adding just 1 bit at the end.
+
+           If the first bit was OFF in the original byte, and it is ON in the
+           resulting byte, there is no overflow, as the  bit was just
+           inverted.
+
+           If the first bit was OFF, and the resulting bit is OFF, an
+           overflow has happened.
+
+           Therefore we can use the negated bitwise-or of the first bit
+           to determine overflow.  */
+        c = !((byt[i-1] | bytes[i-1])>>7);
+    }
+    /* Generate a new object that we just calculated.  */
+    return fixed<n>(byt);
+}
+
+template <unsigned int n> double fixed<n>::to_double()
+{
     double ret = 0;
     for(size_t i = 0; i < n; i++) {
         double d = 0;
@@ -133,8 +186,9 @@ double fixed<n>::to_double(){
     return ret;
 }
 
-template<unsigned int n>
-std::ostream& operator<< (std::ostream& os, const fixed<n>& f){
+template<unsigned int n> std::ostream& operator<<
+        (std::ostream& os, const fixed<n>& f)
+{
     for(size_t i=0; i<n; i++){
         std::bitset<8> bits(f.bytes[i]);
         if (i > 0) os << ' ';

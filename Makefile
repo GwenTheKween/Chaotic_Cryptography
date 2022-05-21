@@ -1,5 +1,5 @@
 CC = g++
-COMP_FLAGS = -Wall -c -O2
+COMP_FLAGS = -Wall -c -O2 -std=c++11
 LINK_FLAGS =
 DEBUG_FLAGS = -O0 -g3 -DDEBUG_BUILD
 OUTPUT = crypto
