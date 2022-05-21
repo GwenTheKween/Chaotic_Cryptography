@@ -1,7 +1,7 @@
 CC = g++
-COMP_FLAGS = -Wall -c -O2 -std=c++11
+COMP_FLAGS = -Wall -c -O2 -std=c++20
 LINK_FLAGS =
-DEBUG_FLAGS = -O0 -g3 -DDEBUG_BUILD
+DEBUG_FLAGS = -O0 -g3 -DDEBUG_BUILD -std=c++20
 OUTPUT = crypto
 OUTPUT_DEBUG = crypto.debug
 SRC_FILES = $(wildcard src/*.cc)

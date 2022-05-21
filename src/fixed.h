@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <ostream>
+#include <bit>
 #include <bitset>
 #include <vector>
 
@@ -84,12 +85,39 @@ public:
         return f *= other;
     }
 
+    bool operator!= (fixed<n> other);
+    bool operator!= (double d){
+        fixed<n> f(d);
+        return *this != f;
+    }
+    bool operator> (fixed<n> other){
+        return (other < *this) && (other != *this);
+    }
+    bool operator> (double d){
+        fixed<n> f(d);
+        return *this > f;
+    }
+    bool operator< (fixed<n> other);
+    bool operator< (double d){
+        fixed<n> f(d);
+        return *this < f;
+    }
+
     /* This function pulls double duty.  Not only does it generate the
        two's complement of the number, this is also equivalent of doing
        1 - x, since all numbers are stored mod 1, and 
        (1 - x) mod 1 == -x mod 1.  This method is, unfortunately, O(n),
        but it can not be avoided, as all bytes must be negated.  */
     fixed<n> negate();
+
+    /* This method multiplies THIS by three.  It is used to help with
+       the logistic map, as alpha will be 3.999..., which can be broken
+       into (3 + 0.999...) turning into fixed * fixed + fixed.times_three() */
+    void times_three();
+
+    /* This method is used to check how many bits are different between
+       THIS and OTHER, as a percentage between 0 and 1.  */
+    double bit_diff(fixed<n> other);
 
     /* Used for printing stuff */
     double to_double();
@@ -140,6 +168,23 @@ template <unsigned int n> fixed<n> fixed<n>::operator*= (fixed<n> other)
     return *this;
 }
 
+template <unsigned int n> bool fixed<n>::operator !=(fixed<n> other)
+{
+    for(size_t i = 0; i<n; i++)
+        if(bytes[i] != other.bytes[i])
+            return true;
+    return false;
+}
+
+template <unsigned int n> bool fixed<n>::operator <(fixed<n> other)
+{
+    for(size_t i = 0; i < n; i++){
+        if(bytes[i] != other.bytes[i])
+            return bytes[i] < other.bytes[i];
+    }
+    return false;
+}
+
 template <unsigned int n> fixed<n> fixed<n>::negate()
 {
     unsigned char byt[n], c=1;
@@ -165,6 +210,26 @@ template <unsigned int n> fixed<n> fixed<n>::negate()
     }
     /* Generate a new object that we just calculated.  */
     return fixed<n>(byt);
+}
+
+template <unsigned int n> void fixed<n>::times_three()
+{
+    unsigned int x = 0;
+    for(int i = n - 1; i >= 0; i--) {
+        x += (bytes[i] << 1) + bytes[i];
+        bytes[i] = x;
+        x >>= 8;
+    }
+}
+
+template <unsigned int n> double fixed<n>::bit_diff(fixed<n> other)
+{
+    double count = 0;
+    for(size_t i = 0; i<n; i++){
+        unsigned char x = bytes[i] ^ other.bytes[i];
+        count += std::popcount(x);
+    }
+    return count / (8*n);
 }
 
 template <unsigned int n> double fixed<n>::to_double()
