@@ -1,6 +1,6 @@
 CC = g++
 COMP_FLAGS = -Wall -c -O2 -std=c++20
-LINK_FLAGS =
+LINK_FLAGS = -lssl -lcrypto
 DEBUG_FLAGS = -O0 -g3 -DDEBUG_BUILD -std=c++20
 OUTPUT = crypto
 OUTPUT_DEBUG = crypto.debug
