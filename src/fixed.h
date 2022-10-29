@@ -10,7 +10,7 @@
 /* function to add 2 streams of bytes, a and b, and store them in a given
    buffer, res.  All buffers must have at least size N.  It is safe to have
    res be equal to either A or B (or both).  */
-void add_streams (unsigned char* a, unsigned char* b, unsigned char* res,
+static void add_streams (unsigned char* a, unsigned char* b, unsigned char* res,
                   unsigned int n){
     int x = 0, y = 0;
     for(int i = n-1; i >= 0; i--){
@@ -26,7 +26,7 @@ void add_streams (unsigned char* a, unsigned char* b, unsigned char* res,
 /* Function to multiply 2 streams of bytes, a and b, and store them in a
    given buffer, res.  A and B must have size N, and C must have size 2*n.
    It is not safe to have res be equal to either A or B.  */
-void multiply_streams (unsigned char* a, unsigned char* b, unsigned char* res,
+static void multiply_streams (unsigned char* a, unsigned char* b, unsigned char* res,
                        unsigned int n){
     /* 1 byte is easy to multiply. Use an integer to deal with overflow.
        Do not recurse here.  */
