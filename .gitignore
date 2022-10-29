@@ -29,5 +29,6 @@
 # Executables
 crypto*
 
-# PRNG results
+# PRNG results and testing parafernalia
 results/*
+__pycache__
