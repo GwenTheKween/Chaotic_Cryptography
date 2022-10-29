@@ -71,7 +71,7 @@ Where:
 * $ P_i $ is the i-th plaintext character;
 * $ C_i $ is the i-th ciphertext character;
 * $ \oplus $ is the XOR operation;
-* $ % $ is the mod operation;
+* $ \% $ is the mod operation;
 
 For decrypting, everything works the same, with the exception of the second option, where we use modular subtraction instead.
 
