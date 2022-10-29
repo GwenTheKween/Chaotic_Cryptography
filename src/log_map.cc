@@ -1,7 +1,46 @@
 #include "log_map.h"
 
+#include <cstring>
+#include <openssl/sha.h>
+
+/* Function to calculate the SHA512 of the given password, or from the current
+   time, which should only be used to speed up testing, not for actual
+   encrypting.  Not that this library should be used to encrypt anything, but
+   still.
+   
+   Resulting hash will be stored in PWD, which must have 512 bytes.  */
+
+static void generate_start(unsigned char* pwd, size_t len){
+    if(len == 0) {
+        /* Generate a random seed and print it out.  */
+        /* TBA DO NOT USE THIS YET.  */
+        memset(pwd,0x00, 512);
+        len = 511;
+    }
+    SHA512_CTX ctx;
+
+    SHA512_Init(&ctx);
+    SHA512_Update(&ctx, pwd, len);
+    SHA512_Final(pwd, &ctx);
+
+    for(size_t i=0; i<len; i++) std::cout<<(int)pwd[i]<<' ';
+    std::cout<<'\n';
+}
+
 logistic_map::logistic_map(double d, int ii):
     state(d), alpha(0.9996), i(ii) {
+    remove_transient();
+}
+
+logistic_map::logistic_map(const unsigned char* c, bool number, int ii):
+    alpha(0.9996), i(ii) {
+    if(number)
+    {
+	double d;
+	d = atof((const char*)c);
+	state.set(d);
+    } else
+	state.set(c);
     remove_transient();
 }
 

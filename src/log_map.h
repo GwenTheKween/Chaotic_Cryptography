@@ -24,6 +24,11 @@ public:
        SHA512.  */
     logistic_map(double d, int ii = 8);
 
+    /* This is going to be the finally useful constructor,
+       but it shouldn't allow NUMBER == true in the final
+       version of the crypto.  */
+    logistic_map(const unsigned char* c, bool number, int ii = 8);
+
     int remove_transient();
     /* get_random will iterate once over the map and return the
        first 8 bits after the given 'i'.  */
