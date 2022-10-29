@@ -20,8 +20,8 @@ def gen_histogram(filename, mode):
 if __name__ == '__main__':
     def parse_args(args):
         parser = argparse.ArgumentParser(description='generate a histogram based on the given file')
-        parser.add_argument('--file', help='Name of the file to analyze', required=True)
-        parser.add_argument('--mode', help='How this script should analyze the file. Using PRNG will make the histogram ranges be [0-255] and have 256 bins', choices=['default', 'PRNG'], default='default')
+        parser.add_argument('-f', '--file', help='Name of the file to analyze', required=True)
+        parser.add_argument('-m', '--mode', help='How this script should analyze the file. Using PRNG will make the histogram ranges be [0-255] and have 256 bins', choices=['default', 'PRNG'], default='default')
         return parser.parse_args(args)
 
     args = parse_args(argv[1:])
