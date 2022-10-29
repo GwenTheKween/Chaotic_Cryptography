@@ -64,7 +64,10 @@ private:
     static_assert(power_of_2, "you must have a byte count that is a power of 2");
 public:
     fixed(double d = 0);
-    fixed(unsigned char * c);
+    fixed(const unsigned char * c);
+
+    void set (double d);
+    void set (const unsigned char* c);
 
     fixed<n> operator+= (fixed<n> other);
     fixed<n> operator+ (fixed<n> other)
@@ -129,6 +132,11 @@ public:
 
 template <unsigned int n> fixed<n>::fixed(double d)
 {
+    this->set(d);
+}
+
+template <unsigned int n> void fixed<n>::set(double d)
+{
     for(size_t i=0; i < n; i++){
         unsigned char c = 0;
         for(int j = 0; j<8; j++){
@@ -143,7 +151,12 @@ template <unsigned int n> fixed<n>::fixed(double d)
     }
 }
 
-template <unsigned int n> fixed<n>::fixed(unsigned char* c)
+template <unsigned int n> fixed<n>::fixed(const unsigned char* c)
+{
+    set(c);
+}
+
+template <unsigned int n> void fixed<n>::set(const unsigned char* c)
 {
     for(size_t i=0; i<n; i++) bytes[i] = c[i];
 }
