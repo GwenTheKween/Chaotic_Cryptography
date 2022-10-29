@@ -28,13 +28,13 @@ enum OPTION_INDEXES {
 /* Function to parse arguments. Return true if there was a problem.  */
 
 bool parse_arguments(int argc, char** argv,
-                    std::string *args) {
+		    std::string *args) {
     struct option longopts[] ={
-        { "help", no_argument, NULL, 'h' },
-        { "seed", required_argument, NULL, 's' },
-        { "count" , required_argument, NULL, 'c' },
-        { "password" , required_argument, NULL, 'p' },
-        { 0 }
+	{ "help", no_argument, NULL, 'h' },
+	{ "seed", required_argument, NULL, 's' },
+	{ "count" , required_argument, NULL, 'c' },
+	{ "password" , required_argument, NULL, 'p' },
+	{ 0 }
     };
 
     /* Set the defaults here. Empty string means no default.  */
@@ -44,27 +44,27 @@ bool parse_arguments(int argc, char** argv,
     args[PASSWORD] = "";
 
     while(1) {
-        int opt = getopt_long(argc, argv, "hs:c:p:", longopts, 0);
+	int opt = getopt_long(argc, argv, "hs:c:p:", longopts, 0);
 
-        /* We finished getting options.  */
-        if(opt == -1) break;
+	/* We finished getting options.  */
+	if(opt == -1) break;
 
-        switch(opt) {
-            case '?':
-            case 'h':
-                usage(argv[0]);
-                return opt == '?';
-            case 's':
-                args[SEED] = optarg;
-                break;
-            case 'c':
-                args[COUNT] = optarg;
-                break;
-            case 'p':
+	switch(opt) {
+	    case '?':
+	    case 'h':
+		usage(argv[0]);
+		return opt == '?';
+	    case 's':
+		args[SEED] = optarg;
+		break;
+	    case 'c':
+		args[COUNT] = optarg;
+		break;
+	    case 'p':
 		args[SEED] = optarg;
 		args[PASSWORD] = "1";
-                break;
-        }
+		break;
+	}
     }
     return false;
 }
@@ -74,15 +74,15 @@ int main(int argc, char** argv){
     int count;
 
     if(parse_arguments(argc, argv, args)){
-        return 1;
+	return 1;
     }
 
     count = atoi(args[COUNT].c_str());
     logistic_map m((const unsigned char*)args[SEED].c_str(),
 		    args[PASSWORD]=="");
     for(int i = 0; i < count; i++){
-        unsigned char c = m.get_random();
-        std::cout << (int) c << '\n';
+	unsigned char c = m.get_random();
+	std::cout << (int) c << '\n';
     }
     return 0;
 }

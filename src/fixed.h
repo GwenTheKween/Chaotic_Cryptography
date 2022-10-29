@@ -11,14 +11,14 @@
    buffer, res.  All buffers must have at least size N.  It is safe to have
    res be equal to either A or B (or both).  */
 static void add_streams (unsigned char* a, unsigned char* b, unsigned char* res,
-                  unsigned int n){
+		  unsigned int n){
     int x = 0, y = 0;
     for(int i = n-1; i >= 0; i--){
-        x += a[i];
-        y = b[i];
-        x += y;
-        res[i] = x % 256;
-        x /= 256;
+	x += a[i];
+	y = b[i];
+	x += y;
+	res[i] = x % 256;
+	x /= 256;
     }
     /* overflows are discarded on purpose. */
 }
@@ -27,15 +27,15 @@ static void add_streams (unsigned char* a, unsigned char* b, unsigned char* res,
    given buffer, res.  A and B must have size N, and C must have size 2*n.
    It is not safe to have res be equal to either A or B.  */
 static void multiply_streams (unsigned char* a, unsigned char* b, unsigned char* res,
-                       unsigned int n){
+		       unsigned int n){
     /* 1 byte is easy to multiply. Use an integer to deal with overflow.
        Do not recurse here.  */
     if (n == 1){
-        unsigned int x = *a;
-        x *= *b;
-        res[0] = x / 256;
-        res[1] = x % 256;
-        return;
+	unsigned int x = *a;
+	x *= *b;
+	res[0] = x / 256;
+	res[1] = x % 256;
+	return;
     }
     /* The first 2 steps can be done directly to RES, as multyplying the
        2 first halfs and the 2 second halfs will never interact with each
@@ -72,37 +72,37 @@ public:
     fixed<n> operator+= (fixed<n> other);
     fixed<n> operator+ (fixed<n> other)
     {
-        fixed<n> f(other);
-        return f += *this;
+	fixed<n> f(other);
+	return f += *this;
     }
     fixed<n> operator -=(fixed<n> other);
     fixed<n> operator - (fixed<n> other)
     {
-        fixed<n> f(*this);
-        return f-= other;
+	fixed<n> f(*this);
+	return f-= other;
     }
     fixed<n> operator *= (fixed<n> other);
     fixed<n> operator * (fixed<n> other)
     {
-        fixed<n> f(*this);
-        return f *= other;
+	fixed<n> f(*this);
+	return f *= other;
     }
     bool operator!= (fixed<n> other);
     bool operator!= (double d){
-        fixed<n> f(d);
-        return *this != f;
+	fixed<n> f(d);
+	return *this != f;
     }
     bool operator> (fixed<n> other){
-        return (other < *this) && (other != *this);
+	return (other < *this) && (other != *this);
     }
     bool operator> (double d){
-        fixed<n> f(d);
-        return *this > f;
+	fixed<n> f(d);
+	return *this > f;
     }
     bool operator< (fixed<n> other);
     bool operator< (double d){
-        fixed<n> f(d);
-        return *this < f;
+	fixed<n> f(d);
+	return *this < f;
     }
 
     /* This function pulls double duty.  Not only does it generate the
@@ -138,16 +138,16 @@ template <unsigned int n> fixed<n>::fixed(double d)
 template <unsigned int n> void fixed<n>::set(double d)
 {
     for(size_t i=0; i < n; i++){
-        unsigned char c = 0;
-        for(int j = 0; j<8; j++){
-            c <<= 1;
-            d *= 2;
-            if(d >= 1){
-                c |= 1;
-                d -= 1;
-            }
-        }
-        bytes [i] = c;
+	unsigned char c = 0;
+	for(int j = 0; j<8; j++){
+	    c <<= 1;
+	    d *= 2;
+	    if(d >= 1){
+		c |= 1;
+		d -= 1;
+	    }
+	}
+	bytes [i] = c;
     }
 }
 
@@ -186,16 +186,16 @@ template <unsigned int n> fixed<n> fixed<n>::operator*= (fixed<n> other)
 template <unsigned int n> bool fixed<n>::operator !=(fixed<n> other)
 {
     for(size_t i = 0; i<n; i++)
-        if(bytes[i] != other.bytes[i])
-            return true;
+	if(bytes[i] != other.bytes[i])
+	    return true;
     return false;
 }
 
 template <unsigned int n> bool fixed<n>::operator <(fixed<n> other)
 {
     for(size_t i = 0; i < n; i++){
-        if(bytes[i] != other.bytes[i])
-            return bytes[i] < other.bytes[i];
+	if(bytes[i] != other.bytes[i])
+	    return bytes[i] < other.bytes[i];
     }
     return false;
 }
@@ -204,24 +204,24 @@ template <unsigned int n> fixed<n> fixed<n>::negate()
 {
     unsigned char byt[n], c=1;
     for(size_t i=n; i>0; i --) {
-        /* We invert and add 1 to the byte here to turn the byte into its
-           two's complement.  */
-        byt[i-1] = (~bytes[i-1]) + c;
-        /* Then we check if there was an overflow in the current byte.
-          
-           If the first bit was ON in the original byte, there is no way
-           to have an overflow, as we are adding just 1 bit at the end.
+	/* We invert and add 1 to the byte here to turn the byte into its
+	   two's complement.  */
+	byt[i-1] = (~bytes[i-1]) + c;
+	/* Then we check if there was an overflow in the current byte.
+	  
+	   If the first bit was ON in the original byte, there is no way
+	   to have an overflow, as we are adding just 1 bit at the end.
 
-           If the first bit was OFF in the original byte, and it is ON in the
-           resulting byte, there is no overflow, as the  bit was just
-           inverted.
+	   If the first bit was OFF in the original byte, and it is ON in the
+	   resulting byte, there is no overflow, as the  bit was just
+	   inverted.
 
-           If the first bit was OFF, and the resulting bit is OFF, an
-           overflow has happened.
+	   If the first bit was OFF, and the resulting bit is OFF, an
+	   overflow has happened.
 
-           Therefore we can use the negated bitwise-or of the first bit
-           to determine overflow.  */
-        c = !((byt[i-1] | bytes[i-1])>>7);
+	   Therefore we can use the negated bitwise-or of the first bit
+	   to determine overflow.  */
+	c = !((byt[i-1] | bytes[i-1])>>7);
     }
     /* Generate a new object that we just calculated.  */
     return fixed<n>(byt);
@@ -231,9 +231,9 @@ template <unsigned int n> void fixed<n>::times_three()
 {
     unsigned int x = 0;
     for(int i = n - 1; i >= 0; i--) {
-        x += (bytes[i] << 1) + bytes[i];
-        bytes[i] = x;
-        x >>= 8;
+	x += (bytes[i] << 1) + bytes[i];
+	bytes[i] = x;
+	x >>= 8;
     }
 }
 
@@ -241,8 +241,8 @@ template <unsigned int n> double fixed<n>::bit_diff(fixed<n> other)
 {
     double count = 0;
     for(size_t i = 0; i<n; i++){
-        unsigned char x = bytes[i] ^ other.bytes[i];
-        count += std::popcount(x);
+	unsigned char x = bytes[i] ^ other.bytes[i];
+	count += std::popcount(x);
     }
     return count / (8*n);
 }
@@ -260,28 +260,28 @@ template <unsigned int n> double fixed<n>::to_double()
 {
     double ret = 0;
     for(size_t i = 0; i < n; i++) {
-        double d = 0;
-        unsigned char c = bytes[i];
-        for(int j = 0; j<8; j++){
-            if(c & 1){
-                d += 1;
-            }
-            c>>=1;
-            d /=2;
-        }
-        for(size_t j = 0; j<i; j++) d /= 256;
-        ret += d;
+	double d = 0;
+	unsigned char c = bytes[i];
+	for(int j = 0; j<8; j++){
+	    if(c & 1){
+		d += 1;
+	    }
+	    c>>=1;
+	    d /=2;
+	}
+	for(size_t j = 0; j<i; j++) d /= 256;
+	ret += d;
     }
     return ret;
 }
 
 template<unsigned int n> std::ostream& operator<<
-        (std::ostream& os, const fixed<n>& f)
+	(std::ostream& os, const fixed<n>& f)
 {
     for(size_t i=0; i<n; i++){
-        std::bitset<8> bits(f.bytes[i]);
-        if (i > 0) os << ' ';
-        os << bits;
+	std::bitset<8> bits(f.bytes[i]);
+	if (i > 0) os << ' ';
+	os << bits;
     }
     return os;
 }

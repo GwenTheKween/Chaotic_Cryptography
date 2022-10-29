@@ -12,10 +12,10 @@
 
 static void generate_start(unsigned char* pwd, size_t len){
     if(len == 0) {
-        /* Generate a random seed and print it out.  */
-        /* TBA DO NOT USE THIS YET.  */
-        memset(pwd,0x00, 512);
-        len = 511;
+	/* Generate a random seed and print it out.  */
+	/* TBA DO NOT USE THIS YET.  */
+	memset(pwd,0x00, 512);
+	len = 511;
     }
     SHA512_CTX ctx;
 
@@ -51,10 +51,10 @@ int logistic_map::remove_transient() {
     fixed<BYTE_COUNT> tmp_state(c);
     tmp_state += state;
     while((state - tmp_state) < 0.10 ||
-          (state - tmp_state) > 0.90) {
-        _iterate(state, 1);
-        _iterate(tmp_state, 1);
-        count++;
+	  (state - tmp_state) > 0.90) {
+	_iterate(state, 1);
+	_iterate(tmp_state, 1);
+	count++;
     }
     return count;
 }
@@ -70,11 +70,11 @@ void logistic_map::iterate(size_t n){
 
 void logistic_map::_iterate(fixed<BYTE_COUNT>& s, size_t n){
     while(n--){
-        s *= s.negate();
-        fixed<BYTE_COUNT> f(s);
-        s *= alpha;
-        f.times_three();
-        s += f;
+	s *= s.negate();
+	fixed<BYTE_COUNT> f(s);
+	s *= alpha;
+	f.times_three();
+	s += f;
     }
 }
 
