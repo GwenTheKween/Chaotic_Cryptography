@@ -22,6 +22,7 @@ enum OPTION_INDEXES {
     COUNT,
     PASSWORD,
     PERF,
+    TEST,
     OPTION_SIZE
 };
 
@@ -31,7 +32,7 @@ bool parse_arguments(int argc, char** argv,
 		    std::string *args) {
     struct option longopts[] ={
 	{ "help", no_argument, NULL, 'h' },
-	{ "seed", required_argument, NULL, 's' },
+	{ "test" , no_argument, NULL, 't' },
 	{ "count" , required_argument, NULL, 'c' },
 	{ "password" , required_argument, NULL, 'p' },
 	{ "perf" , no_argument, NULL, 'P' },
@@ -44,9 +45,10 @@ bool parse_arguments(int argc, char** argv,
     args[COUNT] = "1000";
     args[PASSWORD] = "1";
     args[PERF] = "";
+    args[TEST] = "";
 
     while(1) {
-	int opt = getopt_long(argc, argv, "hc:p:P", longopts, 0);
+	int opt = getopt_long(argc, argv, "htc:p:P", longopts, 0);
 
 	/* We finished getting options.  */
 	if(opt == -1) break;
@@ -56,15 +58,15 @@ bool parse_arguments(int argc, char** argv,
 	    case 'h':
 		usage(argv[0]);
 		return opt == '?';
-	    case 's':
-		args[SEED] = optarg;
+	    case 't':
+		args[TEST]="1";
+		break;
+	    case 'c':
+		args[COUNT] = optarg;
 		break;
 	    case 'p':
 		args[SEED] = optarg;
 		args[PASSWORD] = "1";
-		break;
-	    case 'c':
-		args[COUNT] = optarg;
 		break;
 	    case 'P':
 		args[PERF] = "1";
@@ -85,6 +87,14 @@ int main(int argc, char** argv){
     count = atoi(args[COUNT].c_str());
     logistic_map m((const unsigned char*)args[SEED].c_str(),
 		    args[PASSWORD]=="");
+    if(args[TEST]!="") {
+	std::cout<<"#================================================="<<std::endl;
+	std::cout<<"#Logistic map; password: "<<args[SEED]<<std::endl;
+	std::cout<<"#================================================="<<std::endl;
+	std::cout<<" type: d"<<std::endl;
+	std::cout<<" count: "<<args[COUNT]<<std::endl;
+	std::cout<<" numbit: 8"<<std::endl;
+    }
     for(int i = 0; i < count; i++){
 	unsigned char c = m.get_random();
 	if(args[PERF]=="")
