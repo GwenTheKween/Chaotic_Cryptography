@@ -11,7 +11,6 @@ void usage(const char *prog_name) {
     std::cerr << "Usage: " << prog_name << "\n";
 
     std::cerr << "\t-h, --help\t\tPrint this help and exit\n";
-    std::cerr << "\t-s, --seed[=VALUE]\t\tUse VALUE as the starting state for the map.  VALUE must be in (0,1) exclusive.\n";
     std::cerr << "\t-c, --count[=COUNT]\t\tGenerate COUNT random numbers. Defaults to 1000.\n";
     std::cerr << "\t-p, --password[=pwd]\t\tUse the give a password to generate the starting seed.\n";
     std::cerr << "-p and -s are mutually exclusive\n";
@@ -22,6 +21,7 @@ enum OPTION_INDEXES {
     SEED,
     COUNT,
     PASSWORD,
+    PERF,
     OPTION_SIZE
 };
 
@@ -34,17 +34,19 @@ bool parse_arguments(int argc, char** argv,
 	{ "seed", required_argument, NULL, 's' },
 	{ "count" , required_argument, NULL, 'c' },
 	{ "password" , required_argument, NULL, 'p' },
+	{ "perf" , no_argument, NULL, 'P' },
 	{ 0 }
     };
 
     /* Set the defaults here. Empty string means no default.  */
     args[HELP] = "";
-    args[SEED] = "0.4";
-    args[COUNT] = "5";
-    args[PASSWORD] = "";
+    args[SEED] = "password";
+    args[COUNT] = "1000";
+    args[PASSWORD] = "1";
+    args[PERF] = "";
 
     while(1) {
-	int opt = getopt_long(argc, argv, "hs:c:p:", longopts, 0);
+	int opt = getopt_long(argc, argv, "hc:p:P", longopts, 0);
 
 	/* We finished getting options.  */
 	if(opt == -1) break;
@@ -57,12 +59,15 @@ bool parse_arguments(int argc, char** argv,
 	    case 's':
 		args[SEED] = optarg;
 		break;
-	    case 'c':
-		args[COUNT] = optarg;
-		break;
 	    case 'p':
 		args[SEED] = optarg;
 		args[PASSWORD] = "1";
+		break;
+	    case 'c':
+		args[COUNT] = optarg;
+		break;
+	    case 'P':
+		args[PERF] = "1";
 		break;
 	}
     }
@@ -82,7 +87,8 @@ int main(int argc, char** argv){
 		    args[PASSWORD]=="");
     for(int i = 0; i < count; i++){
 	unsigned char c = m.get_random();
-	std::cout << (int) c << '\n';
+	if(args[PERF]=="")
+	    std::cout << (int) c << '\n';
     }
     return 0;
 }
