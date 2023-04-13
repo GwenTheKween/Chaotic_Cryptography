@@ -8,6 +8,9 @@ def read_file(filename):
     """
     l = []
     with open(filename) as f:
-        l = f.readlines()
+        for line in f:
+            if line[0] == '#' or line[0] == ' ':
+                continue
+            l.append(int(line.strip()))
 
-    return numpy.array([int(x.strip()) for x in l])
+    return numpy.array(l)
