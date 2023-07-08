@@ -96,9 +96,9 @@ int main(int argc, char** argv){
 	std::cout<<" numbit: 8"<<std::endl;
     }
     for(int i = 0; i < count; i++){
-	unsigned char c = m.get_random();
+	uint8_t c = m.get_random();
 	if(args[PERF]=="")
-	    std::cout << (int) c << '\n';
+	    std::cout << (int) c << std::endl;
     }
     return 0;
 }
