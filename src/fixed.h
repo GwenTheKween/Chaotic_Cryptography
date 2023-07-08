@@ -249,10 +249,10 @@ template <unsigned int n> double fixed<n>::bit_diff(fixed<n> other)
 
 template <unsigned int n> uint8_t fixed<n>::get_byte_after(size_t i)
 {
-    int index = n/8;
-    if(n % 8 == 0) return c;
-    c += bytes[index + 1] >> (8 - (n % 8));
-    uint8_t c = bytes[index] << (n % 8);
+    int index = i/8;
+    uint8_t c = bytes[index] << (i % 8);
+    if(i % 8 == 0) return c;
+    c += bytes[index + 1] >> (8 - (i % 8));
     return c;
 }
 
