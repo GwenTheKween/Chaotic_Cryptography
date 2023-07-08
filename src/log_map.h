@@ -8,7 +8,7 @@
    in a way that can easily be changed later - or as a
    compilation argument.  */
 #ifndef BYTE_COUNT
-#define BYTE_COUNT 32
+#define BYTE_COUNT 256
 #endif /* BYTE_COUNT */
 
 class logistic_map {
@@ -17,6 +17,13 @@ private:
     fixed<BYTE_COUNT> alpha;
 
     int i;
+
+    /* The random numbers available in this iteration.  */
+    uint8_t numbers[BYTE_COUNT];
+    /* how many of those numbers we've used.  */
+    unsigned int used_numbers;
+    /* How many numbers we can get from each iteration.  */
+    unsigned int max_numbers;
 public:
     /* This constructor should mostly be used to test
        the logistic map.  For actual cryptography, this
@@ -32,12 +39,13 @@ public:
     int remove_transient();
     /* get_random will iterate once over the map and return the
        first 8 bits after the given 'i'.  */
-    unsigned char get_random();
+    uint8_t get_random();
 
     void iterate(size_t n = 1);
     void print_state();
 
 private:
     void _iterate(fixed<BYTE_COUNT>& s, size_t n);
+    void refresh_numbers();
 };
 #endif /* __LOG_MAP_H__ */

@@ -41,6 +41,8 @@ logistic_map::logistic_map(const unsigned char* c, bool number, int ii):
 	state.set(d);
     } else
 	state.set(c);
+    max_numbers = BYTE_COUNT - (i/8 + (i%8 != 0));
+    used_numbers = max_numbers;
     remove_transient();
 }
 
@@ -59,9 +61,23 @@ int logistic_map::remove_transient() {
     return count;
 }
 
-unsigned char logistic_map::get_random() {
+void logistic_map::refresh_numbers () {
+    used_numbers = 0;
+
     iterate();
-    return state.get_byte_after(i);
+    int shift_bits = i;
+    int index = 0;
+    while (shift_bits/8 < BYTE_COUNT - (shift_bits % 8 != 0)) {
+	numbers[index] = state.get_byte_after (shift_bits);
+	index ++;
+	shift_bits += 8;
+    }
+}
+
+uint8_t logistic_map::get_random() {
+    if (used_numbers >= max_numbers)
+	refresh_numbers ();
+    return numbers[used_numbers++];
 }
 
 void logistic_map::iterate(size_t n){
