@@ -23,6 +23,7 @@ enum OPTION_INDEXES {
     PASSWORD,
     PERF,
     TEST,
+    SHIFT,
     OPTION_SIZE
 };
 
@@ -36,6 +37,7 @@ bool parse_arguments(int argc, char** argv,
 	{ "count" , required_argument, NULL, 'c' },
 	{ "password" , required_argument, NULL, 'p' },
 	{ "perf" , no_argument, NULL, 'P' },
+	{ "shift" , required_argument, NULL, 's' },
 	{ 0 }
     };
 
@@ -46,9 +48,10 @@ bool parse_arguments(int argc, char** argv,
     args[PASSWORD] = "1";
     args[PERF] = "";
     args[TEST] = "";
+    args[SHIFT] = "8";
 
     while(1) {
-	int opt = getopt_long(argc, argv, "htc:p:P", longopts, 0);
+	int opt = getopt_long(argc, argv, "htc:p:Ps:", longopts, 0);
 
 	/* We finished getting options.  */
 	if(opt == -1) break;
@@ -71,6 +74,9 @@ bool parse_arguments(int argc, char** argv,
 	    case 'P':
 		args[PERF] = "1";
 		break;
+	    case 's':
+		args[SHIFT] = optarg;
+		break;
 	}
     }
     return false;
@@ -78,15 +84,16 @@ bool parse_arguments(int argc, char** argv,
 
 int main(int argc, char** argv){
     std::string args[OPTION_SIZE];
-    int count;
+    int count, shift;
 
     if(parse_arguments(argc, argv, args)){
 	return 1;
     }
 
     count = atoi(args[COUNT].c_str());
+    shift = atoi(args[SHIFT].c_str());
     logistic_map m((const unsigned char*)args[SEED].c_str(),
-		    args[PASSWORD]=="");
+		    args[PASSWORD]=="", shift);
     if(args[TEST]!="") {
 	std::cout<<"#================================================="<<std::endl;
 	std::cout<<"#Logistic map; password: "<<args[SEED]<<std::endl;
