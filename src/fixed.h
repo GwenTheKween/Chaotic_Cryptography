@@ -10,7 +10,7 @@
 /* function to add 2 streams of bytes, a and b, and store them in a given
    buffer, res.  All buffers must have at least size N.  It is safe to have
    res be equal to either A or B (or both).  */
-static void add_streams (unsigned char* a, unsigned char* b, unsigned char* res,
+static void add_streams (uint8_t* a, uint8_t* b, uint8_t* res,
 		  unsigned int n){
     int x = 0, y = 0;
     for(int i = n-1; i >= 0; i--){
@@ -26,7 +26,7 @@ static void add_streams (unsigned char* a, unsigned char* b, unsigned char* res,
 /* Function to multiply 2 streams of bytes, a and b, and store them in a
    given buffer, res.  A and B must have size N, and C must have size 2*n.
    It is not safe to have res be equal to either A or B.  */
-static void multiply_streams (unsigned char* a, unsigned char* b, unsigned char* res,
+static void multiply_streams (uint8_t* a, uint8_t* b, uint8_t* res,
 		       unsigned int n){
     /* 1 byte is easy to multiply. Use an integer to deal with overflow.
        Do not recurse here.  */
@@ -44,7 +44,7 @@ static void multiply_streams (unsigned char* a, unsigned char* b, unsigned char*
     multiply_streams (a + n/2, b + n/2, res + n, n/2);
 
     /* Now do the cross multiplication.  */
-    unsigned char x[2*n], y[2*n];
+    uint8_t x[2*n], y[2*n];
     for(size_t i = 0; i<2*n; i++) x[i] = y[i] = 0;
     multiply_streams (a, b + n/2, x+n/2, n/2);
     multiply_streams (a + n/2, b, y+n/2, n/2);
@@ -59,15 +59,15 @@ static void multiply_streams (unsigned char* a, unsigned char* b, unsigned char*
 template <unsigned int n> class fixed
 {
 private:
-    unsigned char bytes[n];
+    uint8_t bytes[n];
     enum {power_of_2 = n && !(n&(n-1))};
     static_assert(power_of_2, "you must have a byte count that is a power of 2");
 public:
     fixed(double d = 0);
-    fixed(const unsigned char * c);
+    fixed(const uint8_t * c);
 
     void set (double d);
-    void set (const unsigned char* c);
+    void set (const uint8_t* c);
 
     fixed<n> operator+= (fixed<n> other);
     fixed<n> operator+ (fixed<n> other)
@@ -122,7 +122,7 @@ public:
     double bit_diff(fixed<n> other);
 
     /* shift left by n bits, then return the next 8 bits.  */
-    unsigned char get_byte_after(size_t i);
+    uint8_t get_byte_after(size_t i);
 
     /* Used for printing stuff */
     double to_double();
@@ -138,7 +138,7 @@ template <unsigned int n> fixed<n>::fixed(double d)
 template <unsigned int n> void fixed<n>::set(double d)
 {
     for(size_t i=0; i < n; i++){
-	unsigned char c = 0;
+	uint8_t c = 0;
 	for(int j = 0; j<8; j++){
 	    c <<= 1;
 	    d *= 2;
@@ -151,19 +151,19 @@ template <unsigned int n> void fixed<n>::set(double d)
     }
 }
 
-template <unsigned int n> fixed<n>::fixed(const unsigned char* c)
+template <unsigned int n> fixed<n>::fixed(const uint8_t* c)
 {
     set(c);
 }
 
-template <unsigned int n> void fixed<n>::set(const unsigned char* c)
+template <unsigned int n> void fixed<n>::set(const uint8_t* c)
 {
     for(size_t i=0; i<n; i++) bytes[i] = c[i];
 }
 
 template <unsigned int n> fixed<n> fixed<n>::operator+=(fixed<n> other)
 {
-    unsigned char full_answer[2*n];
+    uint8_t full_answer[2*n];
     add_streams(bytes, other.bytes, full_answer, n);
     for (size_t i = 0; i < n; i++) bytes[i] = full_answer[i];
     return *this;
@@ -177,7 +177,7 @@ template <unsigned int n> fixed<n> fixed<n>::operator-= (fixed<n> other)
 
 template <unsigned int n> fixed<n> fixed<n>::operator*= (fixed<n> other)
 {
-    unsigned char full_precision[n*2];
+    uint8_t full_precision[n*2];
     multiply_streams(bytes, other.bytes, full_precision, n);
     for(size_t i=0; i<n; i++) bytes[i] = full_precision[i];
     return *this;
@@ -202,7 +202,7 @@ template <unsigned int n> bool fixed<n>::operator <(fixed<n> other)
 
 template <unsigned int n> fixed<n> fixed<n>::negate()
 {
-    unsigned char byt[n], c=1;
+    uint8_t byt[n], c=1;
     for(size_t i=n; i>0; i --) {
 	/* We invert and add 1 to the byte here to turn the byte into its
 	   two's complement.  */
@@ -241,18 +241,18 @@ template <unsigned int n> double fixed<n>::bit_diff(fixed<n> other)
 {
     double count = 0;
     for(size_t i = 0; i<n; i++){
-	unsigned char x = bytes[i] ^ other.bytes[i];
+	uint8_t x = bytes[i] ^ other.bytes[i];
 	count += std::popcount(x);
     }
     return count / (8*n);
 }
 
-template <unsigned int n> unsigned char fixed<n>::get_byte_after(size_t i)
+template <unsigned int n> uint8_t fixed<n>::get_byte_after(size_t i)
 {
     int index = n/8;
-    unsigned char c = bytes[index] << (n % 8);
     if(n % 8 == 0) return c;
     c += bytes[index + 1] >> (8 - (n % 8));
+    uint8_t c = bytes[index] << (n % 8);
     return c;
 }
 
@@ -261,7 +261,7 @@ template <unsigned int n> double fixed<n>::to_double()
     double ret = 0;
     for(size_t i = 0; i < n; i++) {
 	double d = 0;
-	unsigned char c = bytes[i];
+	uint8_t c = bytes[i];
 	for(int j = 0; j<8; j++){
 	    if(c & 1){
 		d += 1;
